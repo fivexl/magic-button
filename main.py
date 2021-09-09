@@ -10,10 +10,10 @@ from slack_sdk.web import client
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 # ID of channel you want to post message to
-channel_name = "mcfly-ecs-events-demo"
+channel_name = "magic-button-test" #TODO: os.environ["SLACK_CHANNEL_NAME"]
 
 # GitHub Project Name
-github_project_name = "test-api"
+github_project_name = "test-api" #TODO: os.environ["GIT_REPO_NAME"]
 
 @app.action(github_project_name + "_yes")
 def approve_request(ack, say):
