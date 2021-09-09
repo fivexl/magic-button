@@ -20,6 +20,7 @@ def approve_request(ack, say):
     # Acknowledge action request
     ack()
     say("Great! I will do! Request approved 👍 !")
+    #TODO: Replase existing message and remove buttons for prevert second click
     os._exit(0)
 
 @app.action(github_project_name + "_no")
@@ -27,6 +28,7 @@ def approve_request(ack, say):
     # Acknowledge action request
     ack()
     say("Up to you! Request NOT approved :thumbsdown: !")
+    #TODO: Replase existing message and remove buttons for prevert second click
     os._exit(1)
 
 
