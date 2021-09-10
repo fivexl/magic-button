@@ -120,4 +120,9 @@ if __name__ == "__main__":
         blocks=blocks_json
     )
     sleep(timeout_minutes*60) # Time in seconds
+
+    # Why to keep auto canceled messages
+    print('No response from user. Deliting message...')
+    app.client.chat_delete(channel=message_deploy['channel'], ts=message_deploy['ts'])
+
     SocketModeHandler(app).close()
