@@ -1,1 +1,2 @@
 slack_bolt == 1.9.0
+pytz==2021.1
