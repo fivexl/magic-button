@@ -11,19 +11,19 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
     # Acknowledge action request
         ack()
         print(body)
+        print('User pressed approve. update message and exit 0')
         username = body['user']['username']
         original_text = body['message']['blocks'][0]['text']['text']
         respond(original_text + f'\n\nApproved by {username} 👍')
         os._exit(0)
 
     @app.action(cancel_action_id)
-    def approve_request(ack, respond, body):
+    def approve_request(ack, client, body):
         # Acknowledge action request
         ack()
         print(body)
-        username = body['user']['username']
-        original_text = body['message']['blocks'][0]['text']['text']
-        respond(original_text + f'\n\nCanceled by {username} ❌')
+        print('User pressed cancel. Delete message and exit 1')
+        client.chat_delete(channel=body['container']['channel_id'], ts=body['container']['message_ts'])
         os._exit(1)
 
     @app.middleware
