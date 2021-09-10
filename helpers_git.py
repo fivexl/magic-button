@@ -7,9 +7,10 @@ def resolve_git_ref_to_sha1(ref_name):
     return sha1
 
 
-def get_commit_message_for_ref(ref_name):
+def get_commit_message_for_ref(ref_name, subject_only=True):
     print(f'Getting commit message for {ref_name}...')
-    msg = subprocess.getoutput(f'git log -n1 --pretty=tformat:%s%b {ref_name}')
+    format='%s' if subject_only else '%s\n%b'
+    msg = subprocess.getoutput(f'git log -n1 --pretty=tformat:{format} {ref_name}')
     print(f'Message = {msg}')
     return msg
 

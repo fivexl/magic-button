@@ -35,14 +35,15 @@ if __name__ == "__main__":
     author_id = author_slack_id if author_slack_id is not None else author_email
     commit_msg = helpers_git.get_commit_message_for_ref(current_commit_id)
 
-    text_for_request = f'Job `{build_job_name}` requires approval to proceed.\n'
+    text_for_request = f'Job `{build_job_name}` requires approval to proceed.\n\n'
     text_for_request += 'If approved will promote commit(s) below to branch '
     text_for_request += ' and '.join(f'`{branch}`' for branch in branches_to_promote)
     text_for_request += f' in repository `{repo_name}`'
     text_for_request += f'\nThis message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken.\n\n'
     text_for_request += 'Details:\n'
     text_for_request += f'Job URL: {build_job_url}\n'
-    text_for_request += f'Commit message: `{commit_msg}`; commit id `{current_commit_id}`\n\n'
+    text_for_request += f'Commit message: `{commit_msg}`\n'
+    text_for_request += f'Commit id: `{current_commit_id}`\n'
     text_for_request += f'Committer: <@{commiter_id}>\n'
     text_for_request += f'Author: <@{author_id}>\n\n'
 
