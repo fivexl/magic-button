@@ -6,9 +6,10 @@ export CURRENT_GIT_COMMIT=$(git rev-parse HEAD)
 export REPOSITORY_NAME=$(basename $(git rev-parse --show-toplevel))
 export REPOSITORY_URL=https://github.com/fivexl/magic-button
 export BRANCHES_TO_PROMOTE=test
-export TIMEOUT_MINUTES=10
+export TIMEOUT_MINUTES=1
 export TIMEZONE=$(cat /etc/timezone)
 export PRODUCTION_BRANCH=release
 export SLACK_CHANNEL_NAME=magic-button-test
 
-python3 main.py
+docker-compose up -d --build
+docker-compose logs -f
