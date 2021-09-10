@@ -2,7 +2,7 @@
 
 # Magin Button
 
-Deployment confiramtion button for Slack
+Deployment confirmation button for Slack
 
 # Configuration
 
