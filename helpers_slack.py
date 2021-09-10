@@ -13,7 +13,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         print(body)
         username = body['user']['username']
         original_text = body['message']['blocks'][0]['text']['text']
-        respond(original_text + f'\n\nApproved by {username}')
+        respond(original_text + f'\n\nApproved by {username} 👍')
         os._exit(0)
 
     @app.action(cancel_action_id)
@@ -23,7 +23,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         print(body)
         username = body['user']['username']
         original_text = body['message']['blocks'][0]['text']['text']
-        respond(original_text + f'\n\nCanceled by {username}')
+        respond(original_text + f'\n\nCanceled by {username} ❌')
         os._exit(1)
 
     @app.middleware
