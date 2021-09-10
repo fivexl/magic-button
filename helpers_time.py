@@ -22,12 +22,12 @@ def current_time(timezone):
 def generate_time_based_message(prod_branch, branches, timezone):
     if prod_branch not in ' '.join(branches):
         return ''
-    message = f'\nIt is {current_time()} in {timezone}.'
-    if is_friday_evening():
+    message = f'\nIt is {current_time(timezone)} in {timezone}.'
+    if is_friday_evening(timezone):
         return (message
                 + ' Deploying to production during Friday afternoon hours?'
                 + ' *This a sure way to screw up your evening and potentialy weekend!*\n'
                 + ' Make sure you are around to deal with consecuences')
-    if is_business_hours():
+    if is_business_hours(timezone):
         return message + ' *Business hours - think twice before deploying to production!*\n'
     return message + ' A good time to attempt deploy\n'
