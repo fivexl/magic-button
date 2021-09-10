@@ -10,11 +10,11 @@ RUN mkdir /app
 COPY requirements.txt /app/
 RUN pip install -r /app/requirements.txt
 
-COPY . /app/
-
 RUN addgroup -S app && adduser -S -G app app
 RUN chown -R app:app /app
 USER app
+
+COPY . /app/
 
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
