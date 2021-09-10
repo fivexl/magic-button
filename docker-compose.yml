@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+    volumes:
+    - ./.git:/app/.git
+    environment:
+      SLACK_BOT_TOKEN:
+      SLACK_APP_TOKEN:
+      BUILD_JOB_NAME:
+      BUILD_JOB_URL:
+      CURRENT_GIT_COMMIT:
+      REPOSITORY_NAME:
+      REPOSITORY_URL:
+      BRANCHES_TO_PROMOTE:
+      TIMEOUT_MINUTES:
+      TIMEZONE:
+      PRODUCTION_BRANCH:
+      SLACK_CHANNEL_NAME:
