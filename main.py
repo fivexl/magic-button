@@ -131,3 +131,5 @@ if __name__ == "__main__":
 
     SocketModeHandler(app).close()
     print('Done')
+    # Exit 1 in case of auto canceled
+    os._exit(1)
