@@ -3,6 +3,8 @@ import os
 from slack_bolt import App
 from slack_sdk.errors import SlackApiError
 
+from main import DETAILS_BLOCK_ID
+
 def init_app(slack_bot_token, approve_action_id, cancel_action_id):
     app = App(token=slack_bot_token)
 
@@ -13,7 +15,10 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         print(body)
         print('User pressed approve. update message and exit 0')
         username = body['user']['username']
-        original_text = body['message']['blocks'][0]['text']['text']
+        original_text = ''
+        for block in  body['message']['blocks']:
+            if 'block_id' in block and block['block_id'] == DETAILS_BLOCK_ID:
+                original_text = block['text']['text']
         respond(original_text + f'\n\nApproved by {username} 👍')
         os._exit(0)
 

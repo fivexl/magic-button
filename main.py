@@ -7,6 +7,7 @@ from time import sleep, timezone
 
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
+DETAILS_BLOCK_ID = 'details'
 
 if __name__ == "__main__":
 
@@ -35,38 +36,68 @@ if __name__ == "__main__":
     author_id = author_slack_id if author_slack_id is not None else author_email
     commit_msg = helpers_git.get_commit_message_for_ref(current_commit_id)
 
-    text_for_request = f'Job `{build_job_name}` requires approval to proceed.\n\n'
-    text_for_request += 'If approved will promote commit(s) below to branch '
+    text_for_request = 'If approved will promote commit(s) below to branch '
     text_for_request += ' and '.join(f'`{branch}`' for branch in branches_to_promote)
     text_for_request += f' in repository `{repo_name}`'
-    text_for_request += f'\nThis message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken.\n\n'
-    text_for_request += 'Details:\n'
-    text_for_request += f'Job URL: {build_job_url}\n'
-    text_for_request += f'Commit message: `{commit_msg}`\n'
-    text_for_request += f'Commit id: `{current_commit_id}`\n'
-    text_for_request += f'Committer: <@{commiter_id}>\n'
-    text_for_request += f'Author: <@{author_id}>\n\n'
+    details = f'Job URL: {build_job_url}\n'
+    details += f'Commit message: `{commit_msg}`\n'
+    details += f'Commit id: `{current_commit_id}`\n'
+    details += f'Committer: <@{commiter_id}>\n'
+    details += f'Author: <@{author_id}>\n\n'
 
     for branch in branches_to_promote:
-        text_for_request += helpers_git.generate_diff(branch, current_commit_id, repo_url)
-    text_for_request += helpers_time.generate_time_based_message(production_branch, branches_to_promote, timezone)
+        details += helpers_git.generate_diff(branch, current_commit_id, repo_url)
+    details += helpers_time.generate_time_based_message(production_branch, branches_to_promote, timezone)
 
     # Truncate too long messages to prevent Slack from posting them as several messages
     # We saw Slack splitting message into two after 3800 but haven't found any documentation
     # So number is more or less made up and needs further verification.
     if len(text_for_request) > 3500:
-        text_for_request = text_for_request[:3500]
-        text_for_request += '\ntoo long message - the rest was truncated. Use link above to see full diff'
+        details = details[:3500]
+        details += '\ntoo long message - the rest was truncated. Use link above to see full diff'
 
     SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"], trace_enabled=True).connect()
 
     blocks_json = [
             {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"Job {build_job_name} requires approval to proceed"
+                },
+                "block_id": "header"
+            },
+            {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
                     "text": text_for_request
-                }
+                },
+                "block_id": "request_info"
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": details
+                },
+                "block_id": DETAILS_BLOCK_ID
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "This message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken"
+                    }
+                ],
+                "block_id": "context"
             },
             {
                 "type": "actions",
