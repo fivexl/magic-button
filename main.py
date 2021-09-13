@@ -56,6 +56,8 @@ if __name__ == "__main__":
         details = details[:3500]
         details += '\ntoo long message - the rest was truncated. Use link above to see full diff'
 
+    header_for_header = f'Approval request for job {build_job_name}'
+
     SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"], trace_enabled=True).connect()
 
     blocks_json = [
@@ -63,7 +65,7 @@ if __name__ == "__main__":
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f"Approval request for job {build_job_name}"
+                    "text": header_for_header
                 },
                 "block_id": "header"
             },
@@ -94,7 +96,7 @@ if __name__ == "__main__":
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": "This message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken"
+                        "text": f'This message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken'
                     }
                 ],
                 "block_id": "context"
@@ -159,6 +161,18 @@ if __name__ == "__main__":
     # Why to keep auto canceled messages
     print('No response from user. Deliting message...')
     app.client.chat_delete(channel=message_deploy['channel'], ts=message_deploy['ts'])
+    app.client.chat_postMessage(channel=message_deploy['channel'],
+        blocks=[
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f'Approval request for job {build_job_url} canceld by timeout after {timeout_minutes} min. Restart the build to get a new one'
+                    }
+                ],
+            }
+        ])
 
     SocketModeHandler(app).close()
     print('Done')
