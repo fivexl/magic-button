@@ -63,7 +63,7 @@ if __name__ == "__main__":
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f"Job {build_job_name} requires approval to proceed"
+                    "text": f"Approval request for job {build_job_name}"
                 },
                 "block_id": "header"
             },

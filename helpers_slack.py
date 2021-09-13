@@ -27,8 +27,13 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         # Acknowledge action request
         ack()
         print(body)
+        header_text = ''
+        for block in  body['message']['blocks']:
+            if 'type' in block and block['type'] == 'header':
+                header_text = block['text']['text']
         print('User pressed cancel. Delete message and exit 1')
         client.chat_delete(channel=body['container']['channel_id'], ts=body['container']['message_ts'])
+        app.client.chat_postEphemeral(channel=body['container']['channel_id'], user=body['user']['id'], text=f'{header_text} canceled by you and deleted to keep approval log nice and clean')
         os._exit(1)
 
     @app.middleware
