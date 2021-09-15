@@ -8,7 +8,7 @@ export REPOSITORY_URL=https://github.com/fivexl/magic-button
 export BRANCHES_TO_PROMOTE=test
 export TIMEOUT_MINUTES=1
 export TIMEZONE=$(cat /etc/timezone)
-export PRODUCTION_BRANCH=release
+export PRODUCTION_BRANCHES=release
 export SLACK_CHANNEL_NAME=magic-button-test
 
 docker-compose up -d --build

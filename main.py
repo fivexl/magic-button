@@ -23,8 +23,11 @@ if __name__ == "__main__":
     branches_to_promote = os.environ['BRANCHES_TO_PROMOTE'].split()
     timeout_minutes = int(os.environ['TIMEOUT_MINUTES'])
     timezone = os.environ['TIMEZONE']
-    production_branch = os.environ['PRODUCTION_BRANCH']
+    production_branches = os.environ['PRODUCTION_BRANCHES'].split()
     slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
+
+    print(f'branches_to_promote: {branches_to_promote}')
+    print(f'production_branches: {production_branches}')
 
     ok_id = uuid.uuid4().hex
     nok_id = uuid.uuid4().hex
@@ -49,7 +52,7 @@ if __name__ == "__main__":
 
     for branch in branches_to_promote:
         details += helpers_git.generate_diff(branch, current_commit_id, repo_url)
-    details += helpers_time.generate_time_based_message(production_branch, branches_to_promote, timezone)
+    details += helpers_time.generate_time_based_message(production_branches, branches_to_promote, timezone)
 
     # Truncate too long messages to prevent Slack from posting them as several messages
     # We saw Slack splitting message into two after 3800 but haven't found any documentation

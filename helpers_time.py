@@ -19,10 +19,12 @@ def current_time(timezone):
     return "{}:{}:{}".format(now.hour, now.minute, now.second)
 
 
-def generate_time_based_message(prod_branch, branches, timezone):
-    if prod_branch not in ' '.join(branches):
+def generate_time_based_message(production_branches, branches, timezone):
+    # if there is no overlap between branches to promote and production branches
+    # then skip adding time based message
+    if not list(set(production_branches) & set(branches)):
         return ''
-    message = f'\nIt is {current_time(timezone)} in {timezone}.'
+    message = f'\n⚠️ It is {current_time(timezone)} in {timezone}.'
     if is_friday_evening(timezone):
         return (message
                 + ' Deploying to production during Friday afternoon hours?'
