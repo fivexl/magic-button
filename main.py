@@ -99,7 +99,17 @@ if __name__ == "__main__":
                         "text": f'This message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken'
                     }
                 ],
-                "block_id": "context"
+                "block_id": "context_self_destruct"
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f'If you configure your commit email to match your Slack profile email then next time I will be able to tag you!'
+                    }
+                ],
+                "block_id": "tag_suggestion"
             },
             {
                 "type": "actions",
