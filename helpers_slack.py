@@ -4,6 +4,7 @@ from slack_bolt import App
 from slack_sdk.errors import SlackApiError
 
 from main import DETAILS_BLOCK_ID
+from main import USER_CANCEL_RETURN_CODE
 
 def init_app(slack_bot_token, approve_action_id, cancel_action_id):
     app = App(token=slack_bot_token)
@@ -20,6 +21,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
             if 'block_id' in block and block['block_id'] == DETAILS_BLOCK_ID:
                 original_text = block['text']['text']
         respond(original_text + f'\n\nApproved by {username} 👍')
+        print(f'Approved by user {username}. Exit with shell return code 0')
         os._exit(0)
 
     @app.action(cancel_action_id)
@@ -34,7 +36,8 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         print('User pressed cancel. Delete message and exit 1')
         client.chat_delete(channel=body['container']['channel_id'], ts=body['container']['message_ts'])
         app.client.chat_postEphemeral(channel=body['container']['channel_id'], user=body['user']['id'], text=f'{header_text} canceled by you and deleted to keep approval log nice and clean')
-        os._exit(1)
+        print(f'Canceled by user. Exit with shell return code {USER_CANCEL_RETURN_CODE}')
+        os._exit(USER_CANCEL_RETURN_CODE)
 
     @app.middleware
     def middleware_func(logger, body, next):

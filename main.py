@@ -8,6 +8,8 @@ from time import sleep, timezone
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 DETAILS_BLOCK_ID = 'details'
+TIMEOUT_RETURN_CODE = 200
+USER_CANCEL_RETURN_CODE = 100
 
 if __name__ == "__main__":
 
@@ -185,6 +187,5 @@ if __name__ == "__main__":
         ])
 
     SocketModeHandler(app).close()
-    print('Done')
-    # Exit 1 in case of auto canceled
-    os._exit(1)
+    print(f'No reply from user. Auto-cancel and return shell exit code {TIMEOUT_RETURN_CODE}')
+    os._exit(TIMEOUT_RETURN_CODE)
