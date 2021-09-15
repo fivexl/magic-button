@@ -30,10 +30,10 @@ if __name__ == "__main__":
 
     committer_email = helpers_git.get_committer_email_for_ref(current_commit_id)
     committer_slack_id = helpers_slack.user_id_by_email(app, committer_email)
-    commiter_id = committer_slack_id if committer_slack_id is not None else committer_email
+    commiter_id = f'<@{committer_slack_id}>' if committer_slack_id is not None else committer_email
     author_email = helpers_git.get_author_email_for_ref(current_commit_id)
     author_slack_id = helpers_slack.user_id_by_email(app, author_email)
-    author_id = author_slack_id if author_slack_id is not None else author_email
+    author_id = f'<@{author_slack_id}>' if author_slack_id is not None else author_email
     commit_msg = helpers_git.get_commit_message_for_ref(current_commit_id)
 
     text_for_request = 'If approved will promote commit(s) below to branch '
@@ -42,8 +42,8 @@ if __name__ == "__main__":
     details = f'Job URL: {build_job_url}\n'
     details += f'Commit message: `{commit_msg}`\n'
     details += f'Commit id: `{current_commit_id}`\n'
-    details += f'Committer: <@{commiter_id}>\n'
-    details += f'Author: <@{author_id}>\n\n'
+    details += f'Committer: {commiter_id}\n'
+    details += f'Author: {author_id}\n\n'
 
     for branch in branches_to_promote:
         details += helpers_git.generate_diff(branch, current_commit_id, repo_url)
