@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f'If you configure your commit email to match your Slack profile email then next time I will be able to tag you!'
+                        "text": f'☝️ If you configure your commit email to match your Slack profile email then next time I will be able to tag you!'
                     }
                 ],
                 "block_id": "tag_suggestion"
