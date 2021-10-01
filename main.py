@@ -54,11 +54,11 @@ if __name__ == "__main__":
         details += helpers_git.generate_diff(branch, current_commit_id, repo_url)
     details += helpers_time.generate_time_based_message(production_branches, branches_to_promote, timezone)
 
-    # Truncate too long messages to prevent Slack from posting them as several messages
-    # We saw Slack splitting message into two after 3800 but haven't found any documentation
+    # Truncate too long messages to prevent Slack Api error msg_too_long https://api.slack.com/methods/chat.postMessage#errors
+    # Message must be less than 3001 character
     # So number is more or less made up and needs further verification.
-    if len(text_for_request) > 3500:
-        details = details[:3500]
+    if len(text_for_request) > 2900:
+        details = details[:2900]
         details += '\ntoo long message - the rest was truncated. Use link above to see full diff'
 
     header_for_header = f'Approval request for job {build_job_name}'
