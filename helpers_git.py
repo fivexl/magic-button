@@ -40,7 +40,15 @@ def generate_diff(base_branch, current_commit_id, repo_url=''):
     cmd = f'git log --pretty=format:"%h %<(27)%ai %<(20)%an  %s" --graph {diff}'
     diff_info = f'Change log for changes to approve:\n```\n{cmd}\n'
     diff_info += subprocess.getoutput(cmd)
-    diff_info += '\n```\n\n'
+
+    # Truncate too long messages to prevent Slack Api error msg_too_long https://api.slack.com/methods/chat.postMessage#errors
+    # Message must be less than 3001 character
+    # So number is more or less made up and needs further verification.
+    if len(diff_info) > 2000:
+        diff_info = diff_info[:2000]
+        diff_info += '\ntoo diff info - the rest was truncated. Use link below to see full diff\n```\n\n'
+    else:
+        diff_info += '\n```\n\n'
 
     if 'github' in repo_url or 'gitlab' in repo_url:
         diff_info += f'\nFull diff for changes to approve: {repo_url}/compare/{diff}\n\n'
