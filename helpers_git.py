@@ -1,6 +1,7 @@
 import subprocess
 import helpers_slack
 
+
 def resolve_git_ref_to_sha1(ref_name):
     print(f'Resolving {ref_name} to Git SHA1...')
     sha1 = subprocess.getoutput(f'git rev-parse {ref_name}')
@@ -10,7 +11,7 @@ def resolve_git_ref_to_sha1(ref_name):
 
 def get_commit_message_for_ref(ref_name, subject_only=True):
     print(f'Getting commit message for {ref_name}...')
-    format='%s' if subject_only else '%s\n%b'
+    format = '%s' if subject_only else '%s\n%b'
     msg = subprocess.getoutput(f'git log -n1 --pretty=tformat:{format} {ref_name}')
     print(f'Message = {msg}')
     return msg

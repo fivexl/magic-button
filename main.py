@@ -3,7 +3,7 @@ import uuid
 import helpers_slack
 import helpers_git
 import helpers_time
-from time import sleep, timezone
+from time import sleep
 
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
@@ -104,6 +104,10 @@ if __name__ == "__main__":
             }
     ]
     blocks_json += diffs
+    self_destruct_msg = ('This message will self-destruct 🕶️🧨💥 and job will be '
+                         + f'auto-cancel in {timeout_minutes} minutes if no action is taken')
+    email_msg = ('☝️ If you configure your commit email to match your Slack profile '
+                 + 'email then next time I will be able to tag you!')
     blocks_json += [
             {
                 "type": "divider"
@@ -113,7 +117,7 @@ if __name__ == "__main__":
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f'This message will self-destruct 🕶️🧨💥 and job will be auto-cancel in {timeout_minutes} minutes if no action is taken'
+                        "text": self_destruct_msg
                     }
                 ],
                 "block_id": "context_self_destruct"
@@ -123,7 +127,7 @@ if __name__ == "__main__":
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f'☝️ If you configure your commit email to match your Slack profile email then next time I will be able to tag you!'
+                        "text": email_msg
                     }
                 ],
                 "block_id": "tag_suggestion"
@@ -183,23 +187,28 @@ if __name__ == "__main__":
     )
 
     print('Waiting for user to respond...')
-    sleep(timeout_minutes*60) # Time in seconds
+    sleep(timeout_minutes*60)  # Time in seconds
 
     # Why to keep auto canceled messages
     print('No response from user. Deliting message...')
     app.client.chat_delete(channel=message_deploy['channel'], ts=message_deploy['ts'])
-    app.client.chat_postMessage(channel=message_deploy['channel'],
+    post_cancel_msg = (f'Approval request for job {build_job_url} canceled '
+                       + 'by timeout after {timeout_minutes} min.'
+                       + ' Restart the build to get a new one')
+    app.client.chat_postMessage(
+        channel=message_deploy['channel'],
         blocks=[
             {
                 "type": "context",
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f'Approval request for job {build_job_url} canceld by timeout after {timeout_minutes} min. Restart the build to get a new one'
+                        "text": post_cancel_msg
                     }
                 ],
             }
-        ])
+        ]
+    )
 
     SocketModeHandler(app).close()
     print(f'No reply from user. Auto-cancel and return shell exit code {TIMEOUT_RETURN_CODE}')

@@ -1,6 +1,7 @@
 import pytz
 from datetime import datetime
 
+
 def is_business_hours(timezone):
     tz = pytz.timezone(timezone)
     now = datetime.now(tz)
