@@ -173,7 +173,25 @@ if __name__ == "__main__":
                         },
                         "value": "click_me_123",
                         "style": "danger",
-                        "action_id": nok_id
+                        "action_id": nok_id,
+                        "confirm": {
+                            "title": {
+                                "type": "plain_text",
+                                "text": "Are you sure?"
+                            },
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": f"Do you really want to cancel {build_job_name}???"
+                            },
+                            "confirm": {
+                                "type": "plain_text",
+                                "text": "Yes! That is the one I want!"
+                            },
+                            "deny": {
+                                "type": "plain_text",
+                                "text": "No! I pressed a wrong button!"
+                            }
+                        }
                     }
                 ]
             }
