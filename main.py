@@ -49,10 +49,23 @@ if __name__ == "__main__":
     details += f'Commit id: `{current_commit_id}`\n'
     details += f'Committer: {commiter_id}\n'
     details += f'Author: {author_id}\n\n'
-
-    for branch in branches_to_promote:
-        details += helpers_git.generate_diff(branch, current_commit_id, repo_url)
     details += helpers_time.generate_time_based_message(production_branches, branches_to_promote, timezone)
+
+    # Generate separate diff blocks for every branch
+    diffs = []
+    for idx, branch in enumerate(branches_to_promote):
+        diff = helpers_git.generate_diff(branch, current_commit_id, repo_url)
+        diff_id = f'diff_{idx}'
+        diffs.append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": diff,
+                },
+                "block_id": diff_id
+            }
+        )
 
     header_for_header = f'Approval request for job {build_job_name}'
 
@@ -86,6 +99,12 @@ if __name__ == "__main__":
                 },
                 "block_id": DETAILS_BLOCK_ID
             },
+            {
+                "type": "divider"
+            }
+    ]
+    blocks_json += diffs
+    blocks_json += [
             {
                 "type": "divider"
             },

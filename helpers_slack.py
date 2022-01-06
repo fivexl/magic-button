@@ -6,11 +6,15 @@ from slack_sdk.errors import SlackApiError
 from main import DETAILS_BLOCK_ID
 from main import USER_CANCEL_RETURN_CODE
 
+SLACK_MESSAGE_SIZE_LIMIT = 3001
+
 def init_app(slack_bot_token, approve_action_id, cancel_action_id):
     app = App(token=slack_bot_token)
 
+    # pylint thinks that we are redefining the function but
+    # we are actually not
     @app.action(approve_action_id)
-    def approve_request(ack, respond, body):
+    def approve_request(ack, respond, body): # pylint: disable=E0102
     # Acknowledge action request
         ack()
         print(body)
@@ -25,7 +29,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         os._exit(0)
 
     @app.action(cancel_action_id)
-    def approve_request(ack, client, body):
+    def approve_request(ack, client, body): # pylint: disable=E0102
         # Acknowledge action request
         ack()
         print(body)
@@ -55,3 +59,17 @@ def user_id_by_email(app, email):
             return None
 
     return None
+
+def is_message_longer_than_limit(message):
+    return True if len(message) > SLACK_MESSAGE_SIZE_LIMIT else False
+
+def truncate_message_if_needed(message, append_message_if_truncated):
+    # Return message as is if its len is below the limit
+    if not is_message_longer_than_limit(message):
+        return message
+    # Otherwise truncate and append the message
+    print(f'have to truncate the message sinse its size is {len(message)} > {SLACK_MESSAGE_SIZE_LIMIT}')
+    size_available = SLACK_MESSAGE_SIZE_LIMIT - len(append_message_if_truncated) - len('\n') - 1
+    truncated_message = message[:size_available] + '\n' + append_message_if_truncated
+    print(f'size of truncated message {len(truncated_message)}')
+    return truncated_message

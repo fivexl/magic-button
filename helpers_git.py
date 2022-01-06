@@ -1,4 +1,5 @@
 import subprocess
+import helpers_slack
 
 def resolve_git_ref_to_sha1(ref_name):
     print(f'Resolving {ref_name} to Git SHA1...')
@@ -37,20 +38,14 @@ def generate_diff(base_branch, current_commit_id, repo_url=''):
     diff = f'{base_sha1}..{current_commit_id}'
 
     # Add a list of commits that you are about to promote
-    cmd = f'git log --pretty=format:"%h %<(27)%ai %<(20)%an  %s" --graph {diff}'
-    diff_info = f'Change log for changes to approve:\n```\n{cmd}\n'
-    diff_info += subprocess.getoutput(cmd)
-
-    # Truncate too long messages to prevent Slack Api error msg_too_long https://api.slack.com/methods/chat.postMessage#errors
-    # Message must be less than 3001 character
-    # So number is more or less made up and needs further verification.
-    if len(diff_info) > 2400:
-        diff_info = diff_info[:2400]
-        diff_info += '\n\n diff info was truncated. Use link below to see full diff\n```\n\n'
-    else:
-        diff_info += '\n```\n\n'
-
+    diff_info = f'Changes targeted for branch *{base_branch}*\n\n'
     if 'github' in repo_url or 'gitlab' in repo_url:
         diff_info += f'\nFull diff for changes to approve: {repo_url}/compare/{diff}\n\n'
+    cmd = f'git log --pretty=format:"%h %<(27)%ai %<(20)%an  %s" --graph {diff}'
+    diff_info += f'```{cmd}\n'
+    diff_info += subprocess.getoutput(cmd)
+    diff_info += '\n```'
 
-    return diff_info
+    return helpers_slack.truncate_message_if_needed(
+        diff_info,
+        '\n\n diff info was truncated. Use link above to see full diff\n```\n\n')
