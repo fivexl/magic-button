@@ -211,7 +211,7 @@ if __name__ == "__main__":
     print('No response from user. Deliting message...')
     app.client.chat_delete(channel=message_deploy['channel'], ts=message_deploy['ts'])
     post_cancel_msg = (f'Approval request for job {build_job_url} canceled '
-                       + 'by timeout after {timeout_minutes} min.'
+                       + f'by timeout after {timeout_minutes} min.'
                        + ' Restart the build to get a new one')
     app.client.chat_postMessage(
         channel=message_deploy['channel'],
