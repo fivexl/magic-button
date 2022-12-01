@@ -5,6 +5,7 @@ services:
       context: .
     volumes:
     - ./.git:/app/.git
+    - ./magic-button/reports:/app/reports
     environment:
       SLACK_BOT_TOKEN:
       SLACK_APP_TOKEN:

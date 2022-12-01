@@ -10,6 +10,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 DETAILS_BLOCK_ID = 'details'
 TIMEOUT_RETURN_CODE = 200
 USER_CANCEL_RETURN_CODE = 100
+REPORT_FILE = '/app/reports/report.json'
 
 if __name__ == "__main__":
 
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     print('Sending message out...')
     message_deploy = app.client.chat_postMessage(
         channel=slack_channel_name,
-        text=f'Approval request for {build_job_url}',
+        text=f'{header_for_header}',
         blocks=blocks_json
     )
 

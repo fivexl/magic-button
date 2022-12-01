@@ -1,10 +1,12 @@
 import os
+import json
 
 from slack_bolt import App
 from slack_sdk.errors import SlackApiError
 
 from main import DETAILS_BLOCK_ID
 from main import USER_CANCEL_RETURN_CODE
+from main import REPORT_FILE
 
 SLACK_MESSAGE_SIZE_LIMIT = 3001
 
@@ -25,6 +27,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
                 original_text = block['text']['text']
         respond(original_text + f'\n\nApproved by {username} 👍')
         print(f'Approved by user {username}. Exit with shell return code 0')
+        gen_report(body,0)
         os._exit(0)
 
     # pylint and flake8 thinks that we are redefining the function but
@@ -47,6 +50,7 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
             text=f'{header_text} canceled by you and deleted to keep approval log nice and clean'
         )
         print(f'Canceled by user. Exit with shell return code {USER_CANCEL_RETURN_CODE}')
+        gen_report(body,USER_CANCEL_RETURN_CODE)
         os._exit(USER_CANCEL_RETURN_CODE)
 
     @app.middleware
@@ -55,6 +59,17 @@ def init_app(slack_bot_token, approve_action_id, cancel_action_id):
         next()
 
     return app
+
+def gen_report(body, approval_code):
+    report = {
+        'username': body['user']['username'],
+        'team': body['team']['domain'],
+        'channel': body['channel']['name'],
+        'message': body['message']['text'],
+        'approval_code': approval_code
+    }
+    with open(REPORT_FILE, "w") as outfile:
+        json.dump(report, outfile)    
 
 
 def user_id_by_email(app, email):
