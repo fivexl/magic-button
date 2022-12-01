@@ -71,7 +71,7 @@ settings:
         id: approval
         if: steps.checkout.outcome == 'success'
         env:
-          MAGIC_BUTTON_VERSION: "0.2.0"
+          MAGIC_BUTTON_VERSION: "v0.2.0"
           SLACK_BOT_TOKEN: "${{ secrets.SLACK_BOT_TOKEN }}"
           SLACK_APP_TOKEN: "${{ secrets.SLACK_APP_TOKEN }}"
           SLACK_CHANNEL_NAME: "${{ secrets.SLACK_CHANNEL_NAME }}"
@@ -82,7 +82,7 @@ settings:
           TIMEOUT_MINUTES: 1
           REPOSITORY_URL: "${{ fromJson(steps.repo.outputs.result).html_url }}"
         run: >
-          mkdir -p magic-button/reports 
+          mkdir -p magic-button/reports && chmod 777 magic-button/reports
           && docker run --rm
           -v "$(pwd)/.git":/app/.git
           -v "$(pwd)/magic-button/reports":/app/reports
@@ -90,7 +90,7 @@ settings:
           -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))"
           -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo" 
           -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME
-          ghcr.io/fivexl/magic-button:v${{ env.MAGIC_BUTTON_VERSION }}
+          ghcr.io/fivexl/magic-button:${{ env.MAGIC_BUTTON_VERSION }}
           && ls -all magic-button/reports && cat magic-button/reports/report.json
         continue-on-error: true
 ```
