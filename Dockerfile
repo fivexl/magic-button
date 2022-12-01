@@ -20,5 +20,6 @@ WORKDIR /app
 
 RUN git config --global --add safe.directory /app
 
+VOLUME ["/app/reports"]
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 CMD ["python3", "/app/main.py"]
