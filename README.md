@@ -40,6 +40,22 @@ settings:
   token_rotation_enabled: false
 ```
 
+# report.json example
+```json
+{
+  "timestamp": 1669891821,
+  "approval_code": 0,
+  "usernames": [
+    "vladimir.samoylov"
+  ],
+  "teams": [
+    "fivexl"
+  ],
+  "channel": "magic-button",
+  "message": "Approval request for job local-test"
+}
+```
+
 # GitHub Workflow Example
 ```
       # Repo metadata - output of this step will be used by the later steps. Search for steps.repo.outputs to see where
