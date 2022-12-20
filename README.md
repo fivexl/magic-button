@@ -94,3 +94,41 @@ settings:
           && ls -all magic-button/reports && cat magic-button/reports/report.json
         continue-on-error: true
 ```
+
+# GitLab Workflow + Branch promote Example
+```
+       .magicbutton:
+          stage: .post
+          image:
+            name: docker:latest
+          services:
+            - docker:dind
+            
+          allow_failure: true
+          before_script:
+            - apk update
+            - apk add git
+            
+          script:
+              - |
+                mkdir -p magic-button/reports && chmod 777 magic-button/reports && docker run --rm -v "$(pwd)/.git":/app/.git -v "$(pwd)/magic-button/reports":/app/reports -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))" -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo"  -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME ghcr.io/fivexl/magic-button:$MAGIC_BUTTON_VERSION && ls -all magic-button/reports && cat magic-button/reports/report.json
+
+          after_script:
+            - >
+              if [ $CI_JOB_STATUS == 'success' ]; then
+                #Provide git credentials (e.g.: https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html)
+                git remote set-url --push origin git@gitlab:$CI_PROJECT_PATH
+                git switch $BRANCHES_TO_PROMOTE
+                git push -f ssh_origin HEAD:$PRODUCTION_BRANCHES
+              else
+                echo 'Confirmation failed or is cancelled'
+              fi
+
+
+        promote:
+          stage: .post
+          extends: .magicbutton
+           rules: 
+             - if: $CI_COMMIT_REF_NAME == $BRANCHES_TO_PROMOTE
+
+```
