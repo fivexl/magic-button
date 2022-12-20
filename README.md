@@ -10,6 +10,7 @@ Configuration is done via env variables
 
 * `SLACK_BOT_TOKEN` - Slack bot token. Mandatory parameter. scopes: channels:history, chat:write, reactions:read, users:read.email, users:read
 * `SLACK_APP_TOKEN` - Slack app token. Mandatory parameter. scopes: connections:write
+* `SLACK_CHANNEL_NAME` - Slack channel name. Also channel_id can be used
 
 # Slack App manifect example 
 ```yaml
@@ -119,7 +120,7 @@ settings:
                 #Provide git credentials (e.g.: https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html)
                 git remote set-url --push origin git@gitlab:$CI_PROJECT_PATH
                 git switch $BRANCHES_TO_PROMOTE
-                git push -f ssh_origin HEAD:$PRODUCTION_BRANCHES
+                git push -f origin HEAD:$PRODUCTION_BRANCHES
               else
                 echo 'Confirmation failed or is cancelled'
               fi
