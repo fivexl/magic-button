@@ -1,0 +1,40 @@
+name: AI Review
+# Per-repo caller workflow for AI-powered code review.
+# Triggers on pull request events and calls the shared ai-code-review
+# workflow in the .github repo. Copy this file to your repo's
+# .github/workflows/ directory or adopt via the "New workflow" UI.
+#
+# Required org-level secrets: APP_ID, APP_PRIVATE_KEY, DEVELOPMENT_ACCOUNT_ROLE_ARN
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ai-review-${{ github.repository }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write # PR top-level comments use the issues API endpoint
+  id-token: write
+
+jobs:
+  review:
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: fivexl/shared-workflows/.github/workflows/ai-code-review.yml@main
+    # Optional inputs (see the reusable workflow for the full list):
+    # with:
+    #   model: zai.glm-5              # Bedrock model for orchestrator + review subagents
+    #   subagent_model: nvidia.nemotron-super-3-120b  # cheap model for mechanical subagents
+    #   max_comments: "10"            # inline comment cap; overflow goes to the summary
+    #   boris_mcp_url: https://boris.example.com/mcp  # enable BORIS infra context via bmcp (org-controlled)
+    #
+    # Per-repo tuning also works via .github/ai-review.yml on the repo itself:
+    #   model, max_comments, additional_dimensions (values are sanitized).
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+      BEDROCK_ROLE_ARN: ${{ secrets.DEVELOPMENT_ACCOUNT_ROLE_ARN }}
