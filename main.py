@@ -26,6 +26,9 @@ if __name__ == "__main__":
     timezone = os.environ['TIMEZONE']
     production_branches = os.environ['PRODUCTION_BRANCHES'].split()
     slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
+    # Not every commit is made by a person - squash merges, for instance, are committed by
+    # the SCM itself - so CI can tell us who triggered the build. Optional.
+    triggered_by_email = os.environ.get('TRIGGERED_BY_EMAIL', '')
 
     print(f'branches_to_promote: {branches_to_promote}')
     print(f'production_branches: {production_branches}')
@@ -40,6 +43,11 @@ if __name__ == "__main__":
     author_email = helpers_git.get_author_email_for_ref(current_commit_id)
     author_slack_id = helpers_slack.user_id_by_email(app, author_email)
     author_id = f'<@{author_slack_id}>' if author_slack_id is not None else author_email
+    triggered_by_id = None
+    if triggered_by_email:
+        triggered_by_slack_id = helpers_slack.user_id_by_email(app, triggered_by_email)
+        triggered_by_id = (f'<@{triggered_by_slack_id}>'
+                           if triggered_by_slack_id is not None else triggered_by_email)
     commit_msg = helpers_git.get_commit_message_for_ref(current_commit_id)
 
     text_for_request = 'If approved will promote commit(s) below to branch '
@@ -49,7 +57,10 @@ if __name__ == "__main__":
     details += f'Commit message: `{commit_msg}`\n'
     details += f'Commit id: `{current_commit_id}`\n'
     details += f'Committer: {commiter_id}\n'
-    details += f'Author: {author_id}\n\n'
+    details += f'Author: {author_id}\n'
+    if triggered_by_id is not None:
+        details += f'Triggered by: {triggered_by_id}\n'
+    details += '\n'
     details += helpers_time.generate_time_based_message(production_branches, branches_to_promote, timezone)
 
     # Generate separate diff blocks for every branch
