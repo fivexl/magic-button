@@ -92,10 +92,12 @@ def user_id_by_email(app, email):
         result = app.client.users_lookupByEmail(email=email)
         return result['user']['id']
     except SlackApiError as err:
-        if err.response['error'] == 'users_not_found':
-            return None
-
-    return None
+        error_code = err.response['error']
+        if error_code == 'users_not_found':
+            print(f'No Slack user found for email {email}')
+        else:
+            print(f'Slack lookup failed for email {email}: {error_code}')
+        return None
 
 
 def is_message_longer_than_limit(message):

@@ -22,7 +22,7 @@ Configuration is done via env variables
 * `SLACK_BOT_TOKEN` - Slack bot token. Mandatory parameter. scopes: channels:history, chat:write, reactions:read, users:read.email, users:read
 * `SLACK_APP_TOKEN` - Slack app token. Mandatory parameter. scopes: connections:write
 * `SLACK_CHANNEL_NAME` - Slack channel name. Also channel_id can be used
-* `TRIGGERED_BY_EMAIL` - Email of the person who triggered the build, for example by pressing the merge button. Optional parameter. When set, a `Triggered by` line is added to the approval message, mentioning that person if the email matches a Slack profile. Useful because the commit itself does not always point at a person: squash merges on GitHub, for instance, are committed as `noreply@github.com`
+* `TRIGGERED_BY_EMAIL` - Email of the person who triggered the build, for example by pressing the merge button. Optional parameter. When set, a `Triggered by` line is added to the approval message, mentioning that person if the email matches a Slack profile. Useful because the commit itself does not always point at a person: squash merges on GitHub, for instance, are committed as `noreply@github.com`. A GitHub-generated noreply address (bare `noreply@github.com` or the privacy-enabled `<id>+<username>@users.noreply.github.com` form) never resolves to a person, so the `Triggered by` line is omitted entirely rather than showing that address
 
 # Slack App manifect example 
 ```yaml
