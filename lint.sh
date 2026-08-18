@@ -2,7 +2,7 @@
 
 set -ex
 
-pip3 install flake8==4.0.1 pylint==2.12.2
+pip3 install flake8==7.1.1 pylint==3.3.1
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
