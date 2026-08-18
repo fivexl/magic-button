@@ -94,6 +94,9 @@ settings:
           BRANCHES_TO_PROMOTE: "${{ env.GIT_DESTINATION_BRANCH }}"
           TIMEOUT_MINUTES: 1
           REPOSITORY_URL: "${{ fromJson(steps.repo.outputs.result).html_url }}"
+          # Who clicked Merge - not always the commit author/committer (e.g. squash
+          # merges are committed by GitHub as noreply@github.com). Optional.
+          TRIGGERED_BY_EMAIL: "${{ github.event.pusher.email }}"
         run: >
           mkdir -p magic-button/reports && chmod 777 magic-button/reports
           && docker run --rm
@@ -102,7 +105,7 @@ settings:
           -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL
           -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))"
           -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo" 
-          -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME
+          -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME -e TRIGGERED_BY_EMAIL
           ghcr.io/fivexl/magic-button:${{ env.MAGIC_BUTTON_VERSION }}
           && ls -all magic-button/reports && cat magic-button/reports/report.json
         continue-on-error: true
@@ -124,7 +127,7 @@ settings:
             
           script:
               - |
-                mkdir -p magic-button/reports && chmod 777 magic-button/reports && docker run --rm -v "$(pwd)/.git":/app/.git -v "$(pwd)/magic-button/reports":/app/reports -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))" -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo"  -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME ghcr.io/fivexl/magic-button:$MAGIC_BUTTON_VERSION && ls -all magic-button/reports && cat magic-button/reports/report.json
+                mkdir -p magic-button/reports && chmod 777 magic-button/reports && docker run --rm -v "$(pwd)/.git":/app/.git -v "$(pwd)/magic-button/reports":/app/reports -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))" -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo"  -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME -e TRIGGERED_BY_EMAIL="$GITLAB_USER_EMAIL" ghcr.io/fivexl/magic-button:$MAGIC_BUTTON_VERSION && ls -all magic-button/reports && cat magic-button/reports/report.json
 
           after_script:
             - >
