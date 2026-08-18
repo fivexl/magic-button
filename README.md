@@ -22,6 +22,7 @@ Configuration is done via env variables
 * `SLACK_BOT_TOKEN` - Slack bot token. Mandatory parameter. scopes: channels:history, chat:write, reactions:read, users:read.email, users:read
 * `SLACK_APP_TOKEN` - Slack app token. Mandatory parameter. scopes: connections:write
 * `SLACK_CHANNEL_NAME` - Slack channel name. Also channel_id can be used
+* `TRIGGERED_BY_EMAIL` - Email of the person who triggered the build, for example by pressing the merge button. Optional parameter. When set, a `Triggered by` line is added to the approval message, mentioning that person if the email matches a Slack profile. Useful because the commit itself does not always point at a person: squash merges on GitHub, for instance, are committed as `noreply@github.com`. A GitHub-generated noreply address (bare `noreply@github.com` or the privacy-enabled `<id>+<username>@users.noreply.github.com` form) never resolves to a person, so the `Triggered by` line is omitted entirely rather than showing that address
 
 # Slack App manifect example 
 ```yaml
@@ -93,6 +94,9 @@ settings:
           BRANCHES_TO_PROMOTE: "${{ env.GIT_DESTINATION_BRANCH }}"
           TIMEOUT_MINUTES: 1
           REPOSITORY_URL: "${{ fromJson(steps.repo.outputs.result).html_url }}"
+          # Who clicked Merge - not always the commit author/committer (e.g. squash
+          # merges are committed by GitHub as noreply@github.com). Optional.
+          TRIGGERED_BY_EMAIL: "${{ github.event.pusher.email }}"
         run: >
           mkdir -p magic-button/reports && chmod 777 magic-button/reports
           && docker run --rm
@@ -101,7 +105,7 @@ settings:
           -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL
           -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))"
           -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo" 
-          -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME
+          -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME -e TRIGGERED_BY_EMAIL
           ghcr.io/fivexl/magic-button:${{ env.MAGIC_BUTTON_VERSION }}
           && ls -all magic-button/reports && cat magic-button/reports/report.json
         continue-on-error: true
@@ -123,7 +127,7 @@ settings:
             
           script:
               - |
-                mkdir -p magic-button/reports && chmod 777 magic-button/reports && docker run --rm -v "$(pwd)/.git":/app/.git -v "$(pwd)/magic-button/reports":/app/reports -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))" -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo"  -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME ghcr.io/fivexl/magic-button:$MAGIC_BUTTON_VERSION && ls -all magic-button/reports && cat magic-button/reports/report.json
+                mkdir -p magic-button/reports && chmod 777 magic-button/reports && docker run --rm -v "$(pwd)/.git":/app/.git -v "$(pwd)/magic-button/reports":/app/reports -e SLACK_BOT_TOKEN -e SLACK_APP_TOKEN -e BUILD_JOB_NAME -e BUILD_JOB_URL -e CURRENT_GIT_COMMIT="$(git rev-parse HEAD)" -e REPOSITORY_NAME="$(basename $(git rev-parse --show-toplevel))" -e REPOSITORY_URL -e BRANCHES_TO_PROMOTE -e TIMEOUT_MINUTES -e TIMEZONE="Europe/Oslo"  -e PRODUCTION_BRANCHES -e SLACK_CHANNEL_NAME -e TRIGGERED_BY_EMAIL="$GITLAB_USER_EMAIL" ghcr.io/fivexl/magic-button:$MAGIC_BUTTON_VERSION && ls -all magic-button/reports && cat magic-button/reports/report.json
 
           after_script:
             - >

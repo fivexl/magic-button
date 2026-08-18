@@ -11,6 +11,13 @@ from main import REPORT_FILE
 
 SLACK_MESSAGE_SIZE_LIMIT = 3001
 
+# GitHub-generated addresses that never resolve to a real Slack profile:
+# noreply@github.com (bare merge/squash commits) and the privacy-enabled
+# form <id>+<username>@users.noreply.github.com (bots, and any user with
+# "Keep my email addresses private" turned on - this is common, not rare).
+NOREPLY_DOMAIN_SUFFIX = '@users.noreply.github.com'
+NOREPLY_BARE_ADDRESS = 'noreply@github.com'
+
 
 def init_app(slack_bot_token, approve_action_id, cancel_action_id):
     app = App(token=slack_bot_token)
@@ -87,15 +94,22 @@ def gen_report(usernames, teams, channel, message, approval_code):
         json.dump(report, outfile)
 
 
+def is_noreply_email(email):
+    email = (email or '').strip().lower()
+    return email == NOREPLY_BARE_ADDRESS or email.endswith(NOREPLY_DOMAIN_SUFFIX)
+
+
 def user_id_by_email(app, email):
     try:
         result = app.client.users_lookupByEmail(email=email)
         return result['user']['id']
     except SlackApiError as err:
-        if err.response['error'] == 'users_not_found':
-            return None
-
-    return None
+        error_code = err.response['error']
+        if error_code == 'users_not_found':
+            print(f'No Slack user found for email {email}')
+        else:
+            print(f'Slack lookup failed for email {email}: {error_code}')
+        return None
 
 
 def is_message_longer_than_limit(message):
