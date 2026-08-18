@@ -28,7 +28,7 @@ if __name__ == "__main__":
     slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
     # Not every commit is made by a person - squash merges, for instance, are committed by
     # the SCM itself - so CI can tell us who triggered the build. Optional.
-    triggered_by_email = os.environ.get('TRIGGERED_BY_EMAIL', '')
+    triggered_by_email = os.environ.get('TRIGGERED_BY_EMAIL', '').strip()
 
     print(f'branches_to_promote: {branches_to_promote}')
     print(f'production_branches: {production_branches}')
@@ -44,9 +44,7 @@ if __name__ == "__main__":
     author_slack_id = helpers_slack.user_id_by_email(app, author_email)
     author_id = f'<@{author_slack_id}>' if author_slack_id is not None else author_email
     triggered_by_id = None
-    triggered_by_valid = (triggered_by_email and triggered_by_email.strip()
-                          and not helpers_git.is_noreply_email(triggered_by_email))
-    if triggered_by_valid:
+    if triggered_by_email and not helpers_slack.is_noreply_email(triggered_by_email):
         triggered_by_slack_id = helpers_slack.user_id_by_email(app, triggered_by_email)
         triggered_by_id = (f'<@{triggered_by_slack_id}>'
                            if triggered_by_slack_id is not None else triggered_by_email)

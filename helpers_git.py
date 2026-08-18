@@ -1,18 +1,6 @@
 import subprocess
 import helpers_slack
 
-# GitHub-generated addresses that never resolve to a real Slack profile:
-# noreply@github.com (bare merge/squash commits) and the privacy-enabled
-# form <id>+<username>@users.noreply.github.com (bots, and any user with
-# "Keep my email addresses private" turned on - this is common, not rare).
-NOREPLY_DOMAIN_SUFFIX = '@users.noreply.github.com'
-NOREPLY_BARE_ADDRESS = 'noreply@github.com'
-
-
-def is_noreply_email(email):
-    email = (email or '').strip().lower()
-    return email == NOREPLY_BARE_ADDRESS or email.endswith(NOREPLY_DOMAIN_SUFFIX)
-
 
 def resolve_git_ref_to_sha1(ref_name):
     print(f'Resolving {ref_name} to Git SHA1...')
